@@ -105,3 +105,90 @@ erDiagram
         decimal price
         string ingredients
     }
+```
+
+| Table | Type | Key Columns |
+|---|---|---|
+| `fact_sales` | Fact | `fact_id` (PK), `order_details_id`, `order_id` (FK), `date_id` (FK), `pizza_id` (FK), `quantity`, `total_price` |
+| `dim_date` | Dimension | `date_id` (PK), `full_date`, `day`, `month`, `month_name`, `quarter`, `year`, `day_of_week` |
+| `dim_order` | Dimension | `order_id` (PK), `order_date` |
+| `dim_pizza` | Dimension | `pizza_id` (PK), `pizza_type_id`, `name`, `category`, `size`, `price`, `ingredients` |
+
+**Relationships:** `fact_sales.date_id → dim_date.date_id` · `fact_sales.order_id → dim_order.order_id` · `fact_sales.pizza_id → dim_pizza.pizza_id` (all Many-to-One)
+
+---
+
+## ETL Pipeline — Talend Open Studio
+
+Four fully automated jobs, one per dimension plus the fact table:
+
+| Job | Description | Source → Target | Rows Loaded |
+|---|---|---|---|
+| `Load_DIM_DATE` | Extracts distinct dates; derives `day`/`month`/`quarter`/`year`/`day_of_week` via `TalendDate.formatDate()` | `pizza_source` → `dim_date` | 358 |
+| `Load_DIM_ORDER` | Loads all orders with their order dates | `pizza_source` → `dim_order` | 21,350 |
+| `Load_DIM_PIZZA` | Joins `pizzas` and `pizza_types` source tables into one unified pizza dimension | `pizza_source` → `dim_pizza` | 96 |
+| `Load_FACT_SALES` | Main fact job — 3 lookup joins (date via `full_date`, pizza via `pizza_id`, order via `order_id`); calculates `total_price = quantity × price` | `pizza_source` + `pizza_dw` → `fact_sales` | 48,620 |
+
+---
+
+## Core Analytics & DAX Measures
+
+Power BI Desktop connects directly to `pizza_dw`, with relationships configured in Model view (`fact_sales` → each dimension, Many-to-One).
+
+```dax
+Total Revenue = SUM(fact_sales[total_price])
+
+Total Orders = DISTINCTCOUNT(fact_sales[order_id])
+
+Total Quantity = SUM(fact_sales[quantity])
+
+Avg Order Value = DIVIDE([Total Revenue], [Total Orders])
+```
+
+---
+
+## Dashboard Preview
+
+![Pizza Sales Dashboard](database/Pizza.png)
+
+---
+
+## Key Findings
+
+| Dimension | Finding |
+|---|---|
+| **Seasonality** | July and May are peak revenue months; September and October are the weakest — a clear summer demand pattern |
+| **Quarterly trend** | Revenue is fairly evenly split across quarters (~25% each), with Q1/Q2 slightly ahead — consistent year-round demand |
+| **Category** | **Classic** pizzas generate the most revenue, followed by Supreme, Chicken, then Veggie |
+| **Day of week** | **Friday** is the busiest day by far, followed by Thursday and Wednesday; **Sunday** is the slowest |
+
+---
+
+## Business Recommendations
+
+- **Boost slow months** — targeted marketing/promotions in September–October to counter the seasonal dip
+- **Capitalize on peak days** — focus promotional pushes on Thursday/Friday when volume is already highest
+- **Double down on Classic** — expand the Classic category given it's the clear top revenue driver
+- **Revive Sundays** — introduce Sunday-specific offers to lift the weakest day of the week
+
+---
+
+## Tools Used
+
+| Tool | Version | Purpose |
+|---|---|---|
+| PostgreSQL + PgAdmin 4 | PostgreSQL 16 | Source database and data warehouse hosting |
+| Talend Open Studio | Data Integration | ETL — Extract, Transform, Load |
+| Power BI Desktop | Microsoft Power BI | Data visualization and dashboard creation |
+
+---
+
+## Authors
+
+Built for the Business Intelligence course at **Esprit School of Business (ESB)** — Academic Year 2025–2026.
+
+- **Raed Meddeb** — Database design & ETL (Talend, PostgreSQL)
+- **Wajdi Riahi** — Database design (star schema)
+- **Noureddine Chehimi** — Power BI Data Visualization
+
+*Supervised by Mrs. Dalila Amara.*
