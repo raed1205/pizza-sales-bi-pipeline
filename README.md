@@ -207,8 +207,8 @@ pizza-sales-bi-pipeline/
 
 Built for the Business Intelligence course at **Esprit School of Business (ESB)** — Academic Year 2025–2026.
 
-- **Raed Meddeb** — Database design (star schema) & ETL (Talend, PostgreSQL)
-- Wajdi Riahi
-- Noureddine Chehimi
+- **Raed Meddeb** —  & ETL (Talend, PostgreSQL)
+- Wajdi Riahi Database design (star schema)
+- Noureddine Chehimi Power Bi Data Visualization
 
 *Supervised by Mrs. Dalila Amara.*
