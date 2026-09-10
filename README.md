@@ -149,7 +149,7 @@ Power BI Desktop connects directly to `pizza_dw`, with relationships configured 
 - Interactive slicers: `month_name`, `category`, `quarter`
 - ## Dashboard Preview
 
-![Pizza Sales Dashboard](images/Pizza.png)
+![Pizza Sales Dashboard](Pizza.png)
 
 ---
 
@@ -215,3 +215,6 @@ Built for the Business Intelligence course at **Esprit School of Business (ESB)*
 - Noureddine Chehimi Power Bi Data Visualization
 
 *Supervised by Mrs. Dalila Amara.*
+## Documentation & Reports
+
+📄 **[Click here to view the Full Project Report (PDF)](PizzaSales_BI_Project.pdf)
