@@ -147,6 +147,9 @@ Power BI Desktop connects directly to `pizza_dw`, with relationships configured 
 - Revenue by Category (bar chart)
 - Revenue by Day of Week (bar chart)
 - Interactive slicers: `month_name`, `category`, `quarter`
+- ## Dashboard Preview
+
+![Pizza Sales Dashboard](images/Pizza.png)
 
 ---
 
