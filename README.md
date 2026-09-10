@@ -1,4 +1,4 @@
-#  Pizza Sales BI Pipeline
+# Pizza Sales BI Pipeline
 
 > End-to-end Business Intelligence pipeline transforming raw transactional pizza sales data into an interactive, decision-ready Power BI dashboard — built on a PostgreSQL star-schema data warehouse with a fully automated Talend ETL layer.
 
@@ -11,7 +11,13 @@
 
 ---
 
-##  Business Problem
+## Documentation & Reports
+
+📄 **[Click here to view the Full Project Report (PDF)](database/PizzaSales_BI_Project.pdf)**
+
+---
+
+## Business Problem
 
 > **How can a pizza restaurant optimize its sales strategy by analyzing ordering patterns across time, pizza types, and order behavior to maximize revenue and improve business decisions?**
 
@@ -19,7 +25,7 @@ The restaurant had a full year (2015) of raw transactional data sitting in an op
 
 ---
 
-##  Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -44,7 +50,7 @@ flowchart LR
 
 ---
 
-##  Dataset Overview
+## Dataset Overview
 
 Source: **Pizza Place Sales** — a real pizza restaurant's full year of transactional data (2015), **48,620 order-detail records**.
 
@@ -57,7 +63,7 @@ Source: **Pizza Place Sales** — a real pizza restaurant's full year of transac
 
 ---
 
-##  Star Schema Model
+## Star Schema Model
 
 One central fact table surrounded by three dimensions, with special attention given to the **Date** dimension.
 
@@ -99,122 +105,3 @@ erDiagram
         decimal price
         string ingredients
     }
-```
-
-| Table | Type | Key Columns |
-|---|---|---|
-| `fact_sales` | Fact | `fact_id` (PK), `order_details_id`, `order_id` (FK), `date_id` (FK), `pizza_id` (FK), `quantity`, `total_price` |
-| `dim_date` | Dimension | `date_id` (PK), `full_date`, `day`, `month`, `month_name`, `quarter`, `year`, `day_of_week` |
-| `dim_order` | Dimension | `order_id` (PK), `order_date` |
-| `dim_pizza` | Dimension | `pizza_id` (PK), `pizza_type_id`, `name`, `category`, `size`, `price`, `ingredients` |
-
-**Relationships:** `fact_sales.date_id → dim_date.date_id` · `fact_sales.order_id → dim_order.order_id` · `fact_sales.pizza_id → dim_pizza.pizza_id` (all Many-to-One)
-
----
-
-##  ETL Pipeline — Talend Open Studio
-
-Four fully automated jobs, one per dimension plus the fact table:
-
-| Job | Description | Source → Target | Rows Loaded |
-|---|---|---|---|
-| `Load_DIM_DATE` | Extracts distinct dates; derives `day`/`month`/`quarter`/`year`/`day_of_week` via `TalendDate.formatDate()` | `pizza_source` → `dim_date` | 358 |
-| `Load_DIM_ORDER` | Loads all orders with their order dates | `pizza_source` → `dim_order` | 21,350 |
-| `Load_DIM_PIZZA` | Joins `pizzas` and `pizza_types` source tables into one unified pizza dimension | `pizza_source` → `dim_pizza` | 96 |
-| `Load_FACT_SALES` | Main fact job — 3 lookup joins (date via `full_date`, pizza via `pizza_id`, order via `order_id`); calculates `total_price = quantity × price` | `pizza_source` + `pizza_dw` → `fact_sales` | 48,620 |
-
-**Key `tMap` transformations:**
-- `DIM_DATE` — derives all calendar attributes from a single date field
-- `DIM_PIZZA` — joins `pizzas` + `pizza_types` into a unified dimension
-- `FACT_SALES` — three inner joins plus the `total_price` calculation
-
----
-
-##  Power BI Dashboard & DAX Measures
-
-Power BI Desktop connects directly to `pizza_dw`, with relationships configured in Model view (`fact_sales` → each dimension, Many-to-One).
-
-| Measure | DAX Formula |
-|---|---|
-| Total Revenue | `SUM(fact_sales[total_price])` |
-| Total Orders | `DISTINCTCOUNT(fact_sales[order_id])` |
-| Total Quantity | `SUM(fact_sales[quantity])` |
-| Avg Order Value | `DIVIDE([Total Revenue], [Total Orders])` |
-
-**Dashboard views:**
-- Revenue by Month (bar chart)
-- Revenue by Quarter (donut chart)
-- Revenue by Category (bar chart)
-- Revenue by Day of Week (bar chart)
-- Interactive slicers: `month_name`, `category`, `quarter`
-- ## Dashboard Preview
-
-![Pizza Sales Dashboard](Pizza.png)
-
----
-
-##  Key Findings
-
-| Dimension | Finding |
-|---|---|
-| **Seasonality** | July and May are peak revenue months; September and October are the weakest — a clear summer demand pattern |
-| **Quarterly trend** | Revenue is fairly evenly split across quarters (~25% each), with Q1/Q2 slightly ahead — consistent year-round demand |
-| **Category** | **Classic** pizzas generate the most revenue, followed by Supreme, Chicken, then Veggie |
-| **Day of week** | **Friday** is the busiest day by far, followed by Thursday and Wednesday; **Sunday** is the slowest |
-
-##  Business Recommendations
-
-- **Boost slow months** — targeted marketing/promotions in September–October to counter the seasonal dip
-- **Capitalize on peak days** — focus promotional pushes on Thursday/Friday when volume is already highest
-- **Double down on Classic** — expand the Classic category given it's the clear top revenue driver
-- **Revive Sundays** — introduce Sunday-specific offers to lift the weakest day of the week
-
----
-
-##  Repository Structure
-
-```
-pizza-sales-bi-pipeline/
-├── database/
-│   ├── source_schema.sql          # pizza_source table definitions
-│   ├── dw_schema.sql              # pizza_dw star schema (fact + dimensions)
-│   └── sample_data/               # raw CSV files (orders, order_details, pizzas, pizza_types)
-├── etl/
-│   ├── Load_DIM_DATE.item         # Talend job
-│   ├── Load_DIM_ORDER.item        # Talend job
-│   ├── Load_DIM_PIZZA.item        # Talend job
-│   ├── Load_FACT_SALES.item       # Talend job
-│   └── job_execution_logs/        # run logs / screenshots
-├── dashboards/
-│   └── PizzaSales_Dashboard.pbix  # Power BI report file
-├── docs/
-│   ├── star_schema_diagram.png
-│   ├── architecture_diagram.png
-│   └── PizzaSales_BI_Report.pdf   # full project write-up
-└── README.md
-```
-
----
-
-##  Tools Used
-
-| Tool | Version | Purpose |
-|---|---|---|
-| PostgreSQL + PgAdmin 4 | PostgreSQL 16 | Source database and data warehouse hosting |
-| Talend Open Studio | Data Integration | ETL — Extract, Transform, Load |
-| Power BI Desktop | Microsoft Power BI | Data visualization and dashboard creation |
-
----
-
-##  Authors
-
-Built for the Business Intelligence course at **Esprit School of Business (ESB)** — Academic Year 2025–2026.
-
-- **Raed Meddeb** —  & ETL (Talend, PostgreSQL)
-- Wajdi Riahi Database design (star schema)
-- Noureddine Chehimi Power Bi Data Visualization
-
-*Supervised by Mrs. Dalila Amara.*
-## Documentation & Reports
-
-📄 **[Click here to view the Full Project Report (PDF)](PizzaSales_BI_Project.pdf)
