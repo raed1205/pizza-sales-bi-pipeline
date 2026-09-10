@@ -13,13 +13,13 @@ End-to-end Business Intelligence pipeline transforming transactional pizza sales
 
 ## Documentation & Reports
 
-📄 **[View Full Project Report (PDF)](database/PizzaSales_BI_Project.pdf)**
+ **[View Full Project Report (PDF)](database/PizzaSales_BI_Project.pdf)**
 
 ---
 
 ## Business Problem
 
-The restaurant recorded 2015 transactional data across flat operational tables without an analytical framework to evaluate sales trends, peak ordering hours, or category revenue distribution. This project establishes an end-to-end data pipeline: modeling a star-schema data warehouse, automating ETL execution, and deploying a reporting dashboard.
+A pizza restaurant collected a full year (2015) of sales data across separate operational database tables. Without a central reporting system in place, management could not easily track monthly trends, peak ordering hours, or product performance. This project builds an end-to-end BI solution: modeling a star-schema data warehouse, automating data transformation with Talend, and delivering an interactive Power BI dashboard.
 
 ---
 
@@ -52,16 +52,16 @@ Source dataset contains 48,620 transactional order records from 2015.
 
 | File | Records | Key Columns | Description |
 |---|---|---|---|
-| `orders.csv` | 21,350 | `order_id`, `date`, `time` | Timestamped order placements |
-| `order_details.csv` | 48,620 | `order_details_id`, `order_id`, `pizza_id`, `quantity` | Itemized order details |
-| `pizzas.csv` | 96 | `pizza_id`, `pizza_type_id`, `size`, `price` | Pizza size variants and pricing |
-| `pizza_types.csv` | 32 | `pizza_type_id`, `name`, `category`, `ingredients` | Pizza category metadata |
+| `orders.csv` | 21,350 | `order_id`, `date`, `time` | Order timestamps |
+| `order_details.csv` | 48,620 | `order_details_id`, `order_id`, `pizza_id`, `quantity` | Itemized order quantities |
+| `pizzas.csv` | 96 | `pizza_id`, `pizza_type_id`, `size`, `price` | Pizza size variants and prices |
+| `pizza_types.csv` | 32 | `pizza_type_id`, `name`, `category`, `ingredients` | Pizza categories and ingredients |
 
 ---
 
 ## Data Warehouse Model
 
-Star-schema configuration optimized for analytical querying, featuring a central fact table and three dimensional tables.
+Star-schema configuration optimized for analytical querying, featuring a central fact table surrounded by three dimensional tables.
 
 ```mermaid
 erDiagram
@@ -118,10 +118,10 @@ Implemented using four dedicated Talend Open Studio jobs:
 
 | Job | Description | Source → Target | Rows Loaded |
 |---|---|---|---|
-| `Load_DIM_DATE` | Extracts distinct dates and derives `day`, `month`, `quarter`, `year`, and `day_of_week` | `pizza_source` → `dim_date` | 358 |
-| `Load_DIM_ORDER` | Normalizes order records and dates | `pizza_source` → `dim_order` | 21,350 |
-| `Load_DIM_PIZZA` | Merges pizza variants with category metadata | `pizza_source` → `dim_pizza` | 96 |
-| `Load_FACT_SALES` | Performs lookup joins against dimensions and calculates `total_price = quantity * price` | `pizza_source` + `pizza_dw` → `fact_sales` | 48,620 |
+| `Load_DIM_DATE` | Extracts unique dates and calculates calendar fields like day, month, quarter, and year | `pizza_source` → `dim_date` | 358 |
+| `Load_DIM_ORDER` | Cleans order records and normalizes timestamps | `pizza_source` → `dim_order` | 21,350 |
+| `Load_DIM_PIZZA` | Combines pizza items with their category metadata | `pizza_source` → `dim_pizza` | 96 |
+| `Load_FACT_SALES` | Performs lookup joins against dimensions and calculates total sales (`quantity * price`) | `pizza_source` + `pizza_dw` → `fact_sales` | 48,620 |
 
 ---
 
@@ -147,19 +147,19 @@ Avg Order Value = DIVIDE([Total Revenue], [Total Orders])
 
 ## Key Findings
 
-* **Seasonality:** Revenue peaks in May and July, with drops in September and October.
-* **Quarterly Distribution:** Quarterly revenue remains relatively balanced (~25% per quarter), leading slightly in Q1 and Q2.
-* **Category Performance:** Classic category pizzas drive the highest overall revenue, followed by Supreme, Chicken, and Veggie categories.
-* **Day of Week:** Friday generates the highest sales volume, followed by Thursday and Wednesday. Sunday records the lowest volume.
+* **Seasonality:** Revenue peaks during May and July, while September and October see the lowest sales numbers of the year.
+* **Quarterly Trends:** Sales stay steady throughout the year (around 25% per quarter), with Q1 and Q2 slightly ahead.
+* **Category Performance:** Classic pizzas bring in the highest overall revenue, followed by Supreme, Chicken, and Veggie categories.
+* **Busiest Days:** Friday is by far the busiest day for sales, followed by Thursday and Wednesday. Sunday generates the lowest revenue.
 
 ---
 
 ## Business Recommendations
 
-* **Address Slow Periods:** Schedule promotions during September and October to balance annual cash flow.
-* **Capitalize on Peak Demand:** Align inventory management and staffing with high-volume periods on Thursday and Friday evenings.
-* **Optimize Menu Matrix:** Expand high-performing Classic pizza offerings while evaluating low-margin menu items.
-* **Drive Weekend Traffic:** Introduce Sunday-specific bundle deals to boost lower baseline revenue.
+* **Boost Off-Peak Months:** Run targeted promotions and special discounts during September and October to maintain steady revenue during slow months.
+* **Optimize Staffing and Inventory:** Schedule extra kitchen staff and prepare popular ingredients ahead of time for peak order volumes on Thursday and Friday evenings.
+* **Focus on Best Sellers:** Direct marketing campaigns toward the top-performing Classic pizza category to capitalize on established customer preferences.
+* **Increase Sunday Orders:** Introduce Sunday-only meal deals or family delivery specials to lift order volume on the lowest-performing day of the week.
 
 ---
 
@@ -168,17 +168,17 @@ Avg Order Value = DIVIDE([Total Revenue], [Total Orders])
 | Tool | Purpose |
 |---|---|
 | PostgreSQL 16 | Relational operational database and star-schema warehouse |
-| Talend Open Studio | ETL processing and data loading |
-| Power BI Desktop | Analytics modeling and interactive reporting |
+| Talend Open Studio | Data extraction, transformation, and automated loading |
+| Power BI Desktop | Data modeling, DAX measures, and interactive reporting |
 
 ---
 
 ## Authors
 
-Academic project developed for the Business Intelligence curriculum at **Esprit School of Business (ESB)**.
+Academic project developed for Modelisation et entrepôt des données curriculum at **Esprit School of Business (ESB)**.
 
-* **Raed Meddeb:** Data Warehouse Architecture & ETL Pipeline Development
+* **Raed Meddeb:** Data Warehouse Architecture and ETL Pipeline Development
 * **Wajdi Riahi:** Data Warehouse Schema Design
-* **Noureddine Chehimi:** Power BI Dashboard & DAX Implementation
+* **Noureddine Chehimi:** Power BI Dashboard and DAX Measures Implementation
 
 *Supervised by Mrs. Dalila Amara.*
