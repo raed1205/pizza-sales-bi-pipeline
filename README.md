@@ -1,19 +1,14 @@
-# Pizza Sales BI Pipeline
+# Pizza Sales BI Pipeline — End-to-End Analytics & Data Warehouse
 
-End-to-end Business Intelligence pipeline transforming transactional sales data into a Power BI dashboard using a PostgreSQL star-schema data warehouse and automated Talend ETL pipeline.
+An end-to-end business intelligence pipeline that transforms 48,620 raw transactional order records into a PostgreSQL star-schema data warehouse using automated Talend ETL jobs, powering an interactive Power BI dashboard for strategic revenue analysis.
 
-<p>
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Talend%20Open%20Studio-FF6D70?style=for-the-badge&logo=talend&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Power%20BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black"/>
-  <img src="https://img.shields.io/badge/SQL-025E8C?style=for-the-badge&logo=databricks&logoColor=white"/>
-</p>
+**Project Assets:** [Database Schemas](./database/) • [Talend ETL Jobs](./etl/) • [Power BI Report](./dashboards/)
 
 ---
 
-## Business Problem
+## Overview
 
-A pizza restaurant recorded 2015 transactional data across separate operational tables without an analytical framework to evaluate sales trends, peak ordering hours, or category revenue distribution. This project establishes an end-to-end data pipeline: extracting raw source data, modeling a star-schema data warehouse, automating ETL execution, and deploying an interactive reporting dashboard.
+A pizza restaurant logged a full year (2015) of transactional data across disconnected CSV files without unified reporting. This repository contains the complete data engineering and analytics solution: source data modeling, ETL automation, star-schema data warehousing, and dynamic DAX reporting.
 
 ---
 
@@ -21,9 +16,9 @@ A pizza restaurant recorded 2015 transactional data across separate operational 
 
 ```mermaid
 flowchart LR
-    A[("PostgreSQL<br/>Source DB<br/>pizza_source")] -->|Extract| B["Talend Open Studio<br/>ETL Pipeline"]
-    B -->|Transform & Load| C[("PostgreSQL<br/>Star-Schema DW<br/>pizza_dw")]
-    C -->|Connect & Model| D["Power BI<br/>Dashboard"]
+    A[("PostgreSQL<br/>Source DB")] -->|Extract| B["Talend Open Studio<br/>ETL Jobs"]
+    B -->|Transform & Load| C[("PostgreSQL<br/>Star-Schema DW")]
+    C -->|Direct Connect| D["Power BI<br/>Dashboard"]
 
     style A fill:#4169E1,color:#fff
     style B fill:#FF6D70,color:#fff
